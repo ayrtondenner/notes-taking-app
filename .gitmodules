@@ -1,0 +1,3 @@
+[submodule "references"]
+	path = references
+	url = https://github.com/ayrtondenner/notes-taking-app-references.git
