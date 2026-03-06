@@ -14,6 +14,8 @@ A full-stack notes-taking application where users can sign up, create, edit, and
 | **API Docs** | Swagger / OpenAPI via drf-spectacular |
 | **Testing** | pytest, Django TestCase (44 tests) |
 | **Containerization** | Docker, Docker Compose |
+| **Production Server** | Gunicorn (WSGI) |
+| **Hosting** | Azure VM (Ubuntu 24.04, B2s) |
 
 ## Features
 
@@ -29,7 +31,7 @@ A full-stack notes-taking application where users can sign up, create, edit, and
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/notes-taking-app.git
+git clone https://github.com/ayrtondenner/notes-taking-app.git
 cd notes-taking-app
 
 # 2. Set up environment
@@ -145,6 +147,50 @@ curl -X DELETE http://localhost:8000/api/notes/1/ \
   -H "Authorization: Token YOUR_TOKEN_HERE"
 ```
 
+## Azure Deployment
+
+The app is deployed to an Azure VM using Docker Compose. Deployment scripts are provided in the `scripts/` directory.
+
+### First-Time Deployment
+
+```bash
+# Prerequisites: Azure CLI installed and logged in (az login)
+bash scripts/azure-deploy.sh
+```
+
+This creates a B2s VM (2 vCPU, 4GB RAM, ~$44/mo), installs Docker, clones the repo, generates secure credentials, and starts all services. The app becomes available at `http://notes-app.eastus.cloudapp.azure.com:3000`.
+
+### VM Management Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/azure-deploy.sh` | Full first-time deployment: creates Azure resources, provisions VM, deploys app |
+| `scripts/azure-vm-start.sh` | Starts a stopped VM and brings up Docker containers |
+| `scripts/azure-vm-stop.sh` | Deallocates VM to stop compute billing (~$14/mo for disk+IP only) |
+| `scripts/azure-redeploy.sh` | Pulls latest code from GitHub and rebuilds containers on the VM |
+
+### Why Azure VM?
+
+We evaluated four Azure hosting options:
+
+| Option | Monthly Cost | Docker Compose Support | Always-on |
+|--------|-------------|----------------------|-----------|
+| **VM (B2s)** | ~$44 | Native | Yes |
+| Container Apps | ~$16-26 | No | Scales to zero |
+| App Service | ~$42 | Retiring 2027 | Yes |
+| Container Instances | ~$56-82 | Retired | Yes |
+
+The VM was chosen for **simplicity** — the existing Docker Compose setup works as-is with no modifications. The other options either require splitting services into separately managed containers, have deprecated Docker Compose support, or cost more for fewer features.
+
+### Production Changes
+
+The following changes were made to prepare for production deployment:
+
+- **Gunicorn** replaces Django's development server (`runserver`) as the WSGI server
+- **DEBUG defaults to False** — must be explicitly enabled via `DJANGO_DEBUG=True`
+- **API URL is configurable** via `NEXT_PUBLIC_API_URL` environment variable (defaults to `localhost` for local dev)
+- **Backend volume mount removed** from Docker Compose (was for live-reload in development)
+
 ## Project Structure
 
 ```
@@ -164,6 +210,11 @@ notes-taking-app/
 │   │   ├── lib/         # API client, auth helpers, utilities
 │   │   └── types/       # TypeScript interfaces
 │   └── Dockerfile
+├── scripts/
+│   ├── azure-deploy.sh    # First-time Azure VM deployment
+│   ├── azure-vm-start.sh  # Start VM + containers
+│   ├── azure-vm-stop.sh   # Stop VM (save costs)
+│   └── azure-redeploy.sh  # Pull latest & rebuild
 ├── docker-compose.yml
 ├── .env.example
 └── REQUIREMENTS.md      # Detailed requirements specification
