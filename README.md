@@ -2,7 +2,7 @@
 
 A full-stack notes-taking application where users can sign up, create, edit, and organize notes by colored categories. Built with a warm, aesthetic UI and auto-saving notes.
 
-**Built in a single day — ~8 hours from first commit to fully working app.** Requirements gathering, backend, frontend, Docker, tests, and documentation all completed in one session.
+**Built in a single day — ~6 hours from first commit to fully working app.** Requirements gathering, backend, frontend, Docker, tests, and documentation all completed in one session.
 
 ## Tech Stack
 
