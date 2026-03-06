@@ -12,7 +12,7 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full rounded-2xl p-5 text-left transition-transform hover:scale-[1.02]"
+      className="w-full h-[220px] overflow-hidden rounded-2xl p-5 text-left transition-transform hover:scale-[1.02]"
       style={{
         backgroundColor: note.category.color,
         border: `1px solid ${darkenColor(note.category.color)}`,

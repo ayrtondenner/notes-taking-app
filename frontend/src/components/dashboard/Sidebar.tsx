@@ -14,7 +14,7 @@ export default function Sidebar({
   onSelectCategory,
 }: SidebarProps) {
   return (
-    <aside className="w-56 shrink-0 py-6 pr-4">
+    <aside className="w-56 shrink-0 px-6 py-6">
       <button
         onClick={() => onSelectCategory(null)}
         className={`mb-4 w-full text-left font-serif text-lg font-bold text-dark transition-colors ${
