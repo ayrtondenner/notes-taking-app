@@ -29,5 +29,5 @@ ssh -o StrictHostKeyChecking=no "${VM_USER}@${VM_IP}" "cd notes-taking-app && do
 DNS_FQDN=$(AZ network public-ip list --resource-group "$RESOURCE_GROUP" --query "[0].dnsSettings.fqdn" -o tsv)
 echo ""
 echo "=== VM is running ==="
-echo "Frontend: http://${DNS_FQDN}:3000"
-echo "Backend:  http://${DNS_FQDN}:8000/api/"
+echo "Frontend: https://${DNS_FQDN}"
+echo "Backend:  https://${DNS_FQDN}/api/"

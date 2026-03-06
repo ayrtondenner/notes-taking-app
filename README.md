@@ -15,6 +15,7 @@ A full-stack notes-taking application where users can sign up, create, edit, and
 | **Testing** | pytest, Django TestCase (44 tests) |
 | **Containerization** | Docker, Docker Compose |
 | **Production Server** | Gunicorn (WSGI) |
+| **HTTPS / Reverse Proxy** | Caddy 2 (auto Let's Encrypt) |
 | **Hosting** | Azure VM (Ubuntu 24.04, B2s) |
 
 ## Features
@@ -158,7 +159,7 @@ The app is deployed to an Azure VM using Docker Compose. Deployment scripts are 
 bash scripts/azure-deploy.sh
 ```
 
-This creates a B2s VM (2 vCPU, 4GB RAM, ~$44/mo), installs Docker, clones the repo, generates secure credentials, and starts all services. The app becomes available at `http://notes-app.eastus.cloudapp.azure.com:3000`.
+This creates a B2s VM (2 vCPU, 4GB RAM, ~$44/mo), installs Docker, clones the repo, generates secure credentials, and starts all services. The app becomes available at `https://notes-app.eastus.cloudapp.azure.com`.
 
 ### VM Management Scripts
 
@@ -167,6 +168,7 @@ This creates a B2s VM (2 vCPU, 4GB RAM, ~$44/mo), installs Docker, clones the re
 | `scripts/azure-deploy.sh` | Full first-time deployment: creates Azure resources, provisions VM, deploys app |
 | `scripts/azure-vm-start.sh` | Starts a stopped VM and brings up Docker containers |
 | `scripts/azure-vm-stop.sh` | Deallocates VM to stop compute billing (~$14/mo for disk+IP only) |
+| `scripts/azure-vm-status.sh` | Checks if VM is running or deallocated, prints URLs if running |
 | `scripts/azure-redeploy.sh` | Pulls latest code from GitHub and rebuilds containers on the VM |
 
 ### Why Azure VM?
@@ -190,6 +192,7 @@ The following changes were made to prepare for production deployment:
 - **DEBUG defaults to False** — must be explicitly enabled via `DJANGO_DEBUG=True`
 - **API URL is configurable** via `NEXT_PUBLIC_API_URL` environment variable (defaults to `localhost` for local dev)
 - **Backend volume mount removed** from Docker Compose (was for live-reload in development)
+- **Caddy reverse proxy** terminates HTTPS with auto-provisioned Let's Encrypt certificates, routing `/api/*` to Django and everything else to Next.js
 
 ## Project Structure
 
@@ -210,11 +213,14 @@ notes-taking-app/
 │   │   ├── lib/         # API client, auth helpers, utilities
 │   │   └── types/       # TypeScript interfaces
 │   └── Dockerfile
+├── caddy/
+│   └── Caddyfile           # Caddy reverse proxy config (HTTPS)
 ├── scripts/
-│   ├── azure-deploy.sh    # First-time Azure VM deployment
-│   ├── azure-vm-start.sh  # Start VM + containers
-│   ├── azure-vm-stop.sh   # Stop VM (save costs)
-│   └── azure-redeploy.sh  # Pull latest & rebuild
+│   ├── azure-deploy.sh     # First-time Azure VM deployment
+│   ├── azure-vm-start.sh   # Start VM + containers
+│   ├── azure-vm-stop.sh    # Stop VM (save costs)
+│   ├── azure-vm-status.sh  # Check VM status
+│   └── azure-redeploy.sh   # Pull latest & rebuild
 ├── docker-compose.yml
 ├── .env.example
 └── REQUIREMENTS.md      # Detailed requirements specification

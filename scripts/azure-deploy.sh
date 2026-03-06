@@ -51,9 +51,9 @@ VM_OUTPUT=$(AZ vm create \
 VM_IP=$(echo "$VM_OUTPUT" | python3 -c "import sys,json; print(json.load(sys.stdin)['publicIpAddress'])")
 echo "   VM created with IP: $VM_IP"
 
-echo "[3/6] Opening ports 3000 (frontend) and 8000 (backend)..."
-AZ vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 3000 --priority 1010 --output none
-AZ vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 8000 --priority 1020 --output none
+echo "[3/6] Opening ports 80 (HTTP) and 443 (HTTPS)..."
+AZ vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 80 --priority 1010 --output none
+AZ vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 443 --priority 1020 --output none
 
 echo "[4/6] Setting DNS label '$DNS_LABEL'..."
 AZ network public-ip update --resource-group "$RESOURCE_GROUP" --name "${VM_NAME}PublicIP" --dns-name "$DNS_LABEL" --output none
@@ -88,8 +88,10 @@ POSTGRES_PORT=5432
 DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=${VM_IP},${DNS_FQDN},backend,localhost
-NEXT_PUBLIC_API_URL=http://${DNS_FQDN}:8000/api
-CORS_ALLOWED_ORIGINS=http://${DNS_FQDN}:3000
+NEXT_PUBLIC_API_URL=/api
+CORS_ALLOWED_ORIGINS=https://${DNS_FQDN}
+CSRF_TRUSTED_ORIGINS=https://${DNS_FQDN}
+DOMAIN=${DNS_FQDN}
 ENV_CONTENT
 
 docker compose up -d --build
@@ -99,9 +101,9 @@ DEPLOY_EOF
 echo ""
 echo "=== Deployment Complete ==="
 echo ""
-echo "Frontend: http://${DNS_FQDN}:3000"
-echo "Backend:  http://${DNS_FQDN}:8000/api/"
-echo "API Docs: http://${DNS_FQDN}:8000/api/docs/"
+echo "Frontend: https://${DNS_FQDN}"
+echo "Backend:  https://${DNS_FQDN}/api/"
+echo "API Docs: https://${DNS_FQDN}/api/docs/"
 echo "VM IP:    ${VM_IP}"
 echo ""
 echo "SSH: ssh ${VM_USER}@${VM_IP}"

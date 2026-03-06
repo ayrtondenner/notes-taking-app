@@ -19,6 +19,16 @@ VM_USER="azureuser"
 
 VM_IP=$(AZ vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --show-details --query publicIps -o tsv)
 
+NSG_NAME=$(AZ network nsg list --resource-group "$RESOURCE_GROUP" --query "[0].name" -o tsv)
+
+echo "Ensuring ports 80/443 are open and 3000/8000 are closed..."
+AZ network nsg rule create --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" \
+    --name AllowHTTP --priority 1010 --destination-port-ranges 80 --access Allow --protocol Tcp --direction Inbound --output none 2>/dev/null || true
+AZ network nsg rule create --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" \
+    --name AllowHTTPS --priority 1020 --destination-port-ranges 443 --access Allow --protocol Tcp --direction Inbound --output none 2>/dev/null || true
+AZ network nsg rule delete --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" --name open-port-3000 --output none 2>/dev/null || true
+AZ network nsg rule delete --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" --name open-port-8000 --output none 2>/dev/null || true
+
 echo "Redeploying on VM ($VM_IP)..."
 ssh -o StrictHostKeyChecking=no "${VM_USER}@${VM_IP}" << 'EOF'
 cd notes-taking-app
@@ -29,5 +39,5 @@ EOF
 DNS_FQDN=$(AZ network public-ip list --resource-group "$RESOURCE_GROUP" --query "[0].dnsSettings.fqdn" -o tsv)
 echo ""
 echo "=== Redeployment complete ==="
-echo "Frontend: http://${DNS_FQDN}:3000"
-echo "Backend:  http://${DNS_FQDN}:8000/api/"
+echo "Frontend: https://${DNS_FQDN}"
+echo "Backend:  https://${DNS_FQDN}/api/"
