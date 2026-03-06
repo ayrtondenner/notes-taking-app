@@ -1,9 +1,7 @@
 # Notes-Taking App — Requirements Document
 
-> **Challenge by**: Turbo AI
 > **Tech Stack**: Django / DRF (backend) + Next.js / React (frontend)
 > **Time Constraint**: 72 hours
-> **Deliverable to**: adolfo@turbotime.io
 
 ---
 
@@ -25,7 +23,6 @@
 8. [API Endpoints](#8-api-endpoints)
 9. [Key Interaction Flows](#9-key-interaction-flows)
 10. [Deliverables Checklist](#10-deliverables-checklist)
-11. [Discord Discussion Insights](#11-discord-discussion-insights)
 
 ---
 
@@ -438,7 +435,7 @@ graph TD
 
 ## 6. Screen Inventory
 
-All screens from Figma exports (located in `references/figma/screens/`):
+All screens from the Figma design:
 
 | # | Figma Frame | Screen | Description |
 |---|------------|--------|-------------|
@@ -627,46 +624,13 @@ sequenceDiagram
 
 ## 10. Deliverables Checklist
 
-- [ ] **Source Code** — Complete codebase in a public GitHub repo
-- [ ] **README** — Summary of process, key design/technical decisions, AI tools used
-- [ ] **Demo Video** — 5-minute walkthrough in English
-- [ ] **Docker Container** — App runs entirely from Docker Compose (`docker compose up` is all the evaluator needs)
-- [ ] **Swagger / OpenAPI Documentation** — Auto-generated API docs from DRF, accessible at `/api/docs/`
-- [ ] **Unit Tests** — Django's built-in test framework covering models, serializers, and utilities
-- [ ] **Integration Tests** — End-to-end API flow tests covering auth, CRUD operations, and category filtering
-- [ ] **Postman Collection / Request Examples** — Sample API calls
-- [ ] **Environment Configuration** — `.env.example` with required variables
-- [ ] **Setup Instructions** — Step-by-step in README for local and Docker runs
+- [x] **Source Code** — Complete codebase in a public GitHub repo
+- [x] **README** — Summary of process, key design/technical decisions, AI tools used
+- [x] **Docker Container** — App runs entirely from Docker Compose (`docker compose up` is all the evaluator needs)
+- [x] **Swagger / OpenAPI Documentation** — Auto-generated API docs from DRF, accessible at `/api/docs/`
+- [x] **Unit Tests** — Django's built-in test framework covering models, serializers, and utilities
+- [x] **Integration Tests** — End-to-end API flow tests covering auth, CRUD operations, and category filtering
+- [x] **Postman Collection / Request Examples** — curl examples in README
+- [x] **Environment Configuration** — `.env.example` with required variables
+- [x] **Setup Instructions** — Step-by-step in README for local and Docker runs
 
----
-
-## 11. Discord Discussion Insights
-
-Key ideas expanded from the team brainstorming session:
-
-1. **Requirements-first approach** — Write a detailed requirements document in `.md` format before any code. Iterate with AI to deepen, expand, and validate.
-
-2. **Input gathering** — Export Figma as PDF/images, Notion as markdown, transcribe audio/video. Ask the AI which format it reads best.
-
-3. **README for recruiters** — Remember the audience. Write with the recruiter/stakeholder in mind: surface tech decisions, explain tradeoffs, show the "why" behind choices.
-
-4. **Industry-standard practices** — Use MVC architecture (Django's natural pattern), Swagger for API docs, proper test coverage, `.env` configuration.
-
-5. **Docker for reproducibility** — Provide a `Dockerfile` so the evaluator can spin up the entire stack without installing anything locally.
-
-6. **Code is cheap, specification is expensive** — Invest time in the prompt/spec. The implementation follows naturally from a well-defined requirements doc.
-
----
-
-## Source Materials Reference
-
-| Source | Location | Content |
-|--------|----------|---------|
-| Challenge page | `references/notion/challenge.md` | Requirements, constraints, deliverables |
-| Demo video transcript | `references/notion/video_mp4 Transcript.txt` | Full user flow walkthrough |
-| Demo video summary | `references/notion/video_mp4 Summary.txt` | AI-generated summary of demo |
-| Figma screens | `references/figma/screens/*.png` | 28 exported PNGs at 4x scale |
-| Figma data | `references/figma/file_data.json` | Complete Figma file structure + colors |
-| Figma text | `references/figma/text_content.md` | All text extracted from Figma |
-| Discord transcript | `references/discord-discussion/read-ai-transcript.txt` | Full brainstorming session |
-| Discord summary | `references/discord-discussion/read-ai-summary.txt` | AI-generated discussion summary |

@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cream: #FAF1E3;
+  --color-peach: #EF9C66;
+  --color-soft-yellow: #FCDC94;
+  --color-sage-teal: #78ABA8;
+  --color-olive: #C8CFA0;
+  --color-accent: #957139;
+  --color-dark: #000000;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+body {
+  background-color: #FAF1E3;
+  color: #000000;
+  font-family: var(--font-sans);
+}
