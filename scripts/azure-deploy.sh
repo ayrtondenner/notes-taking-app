@@ -8,6 +8,15 @@ set -euo pipefail
 #   - Azure CLI installed and logged in (az login)
 #   - SSH key pair (~/.ssh/id_rsa) or will be auto-generated
 
+# Auto-detect az CLI (handles Windows Git Bash where az isn't in PATH)
+if command -v az &>/dev/null; then
+    AZ=az
+elif [ -f "/c/Program Files/Microsoft SDKs/Azure/CLI2/wbin/az.cmd" ]; then
+    AZ() { "/c/Program Files/Microsoft SDKs/Azure/CLI2/wbin/az.cmd" "$@"; }
+else
+    echo "ERROR: Azure CLI not found. Install it or add to PATH." && exit 1
+fi
+
 RESOURCE_GROUP="notes-app-rg"
 VM_NAME="notes-app-vm"
 LOCATION="eastus"
@@ -20,16 +29,16 @@ echo "=== Azure VM Deployment for Notes-Taking App ==="
 echo ""
 
 # Check Azure CLI login
-if ! az account show &>/dev/null; then
+if ! AZ account show &>/dev/null; then
     echo "Not logged in to Azure CLI. Running 'az login'..."
-    az login
+    AZ login
 fi
 
 echo "[1/6] Creating resource group '$RESOURCE_GROUP' in '$LOCATION'..."
-az group create --name "$RESOURCE_GROUP" --location "$LOCATION" --output none
+AZ group create --name "$RESOURCE_GROUP" --location "$LOCATION" --output none
 
 echo "[2/6] Creating VM '$VM_NAME' (Ubuntu 24.04, $VM_SIZE)..."
-VM_OUTPUT=$(az vm create \
+VM_OUTPUT=$(AZ vm create \
     --resource-group "$RESOURCE_GROUP" \
     --name "$VM_NAME" \
     --image Ubuntu2404 \
@@ -43,13 +52,11 @@ VM_IP=$(echo "$VM_OUTPUT" | python3 -c "import sys,json; print(json.load(sys.std
 echo "   VM created with IP: $VM_IP"
 
 echo "[3/6] Opening ports 3000 (frontend) and 8000 (backend)..."
-az vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 3000 --priority 1010 --output none
-az vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 8000 --priority 1020 --output none
+AZ vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 3000 --priority 1010 --output none
+AZ vm open-port --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --port 8000 --priority 1020 --output none
 
 echo "[4/6] Setting DNS label '$DNS_LABEL'..."
-NIC_ID=$(az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "networkProfile.networkInterfaces[0].id" -o tsv)
-PIP_ID=$(az network nic show --ids "$NIC_ID" --query "ipConfigurations[0].publicIPAddress.id" -o tsv)
-az network public-ip update --ids "$PIP_ID" --dns-name "$DNS_LABEL" --output none
+AZ network public-ip update --resource-group "$RESOURCE_GROUP" --name "${VM_NAME}PublicIP" --dns-name "$DNS_LABEL" --output none
 
 DNS_FQDN="${DNS_LABEL}.${LOCATION}.cloudapp.azure.com"
 echo "   DNS: $DNS_FQDN"
